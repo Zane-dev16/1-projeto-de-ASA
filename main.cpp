@@ -23,54 +23,72 @@ class PlateValueCalculator {
     int subPlateLength;
     int subPlateWidth;
 
+    int subPlateIsSquare() {
+        return subPlateLength == subPlateWidth;
+    }
+
+    int calculateVerticalBisectionValue(int slicePosition) {
+        return maxSubPlateValues[subPlateLength][slicePosition] + maxSubPlateValues[subPlateLength][subPlateWidth - slicePosition];
+    }
+
+    int calculateHorizontalBisectionValue(int slicePosition) {
+        return maxSubPlateValues[slicePosition][subPlateWidth] + maxSubPlateValues[subPlateLength - slicePosition][subPlateWidth];
+    }
+
+    int calculateMaxDirectionalBisectionValue(int (PlateValueCalculator::*calculateBisectionValue)(int), int sliceLimit) {
+        int maxValue = 0;
+        int currValue;
+
+        for (int slicePosition = 1; slicePosition < sliceLimit; slicePosition++) {
+            currValue = (this->*calculateBisectionValue)(slicePosition);
+
+            if (currValue > maxValue) {
+                maxValue = currValue;
+            }
+        }
+
+        return maxValue;
+    }
+
+    int calculateMaxBisectionValue() {
+        int maxValue = calculateMaxDirectionalBisectionValue(&PlateValueCalculator::calculateVerticalBisectionValue, subPlateWidth);
+
+        if (!subPlateIsSquare()) {
+            maxValue = max(maxValue, calculateMaxDirectionalBisectionValue(&PlateValueCalculator::calculateHorizontalBisectionValue, subPlateLength));
+        }
+
+        return maxValue;
+    }
+
+    int getPieceValueWithSubPlateDimensions() {
+        for (Piece piece : pieces) {
+            if (
+                (piece.width == subPlateWidth && piece.length == subPlateLength) || 
+                (piece.width == subPlateLength && piece.length == subPlateWidth) // peças podem girar
+                ) {
+                return piece.value;
+            }
+        }
+        return 0;
+    }
+
+    bool rotatedSubPlateHasBeenCalculated() {
+        return subPlateLength <= plate.width
+            && subPlateLength > subPlateWidth;
+    }
+
+    int calculateMaxSubPlateValue() {
+        if (rotatedSubPlateHasBeenCalculated()) {
+            return maxSubPlateValues[subPlateWidth][subPlateLength];
+        } else {
+            return max(getPieceValueWithSubPlateDimensions(), calculateMaxBisectionValue());
+        }
+    }
+
     public:
         PlateValueCalculator(Plate plate, vector<Piece> pieces) {
             this->plate = plate;
             this->pieces = pieces;
-        }
-
-        int calculateVerticalBisectionValue(int slicePosition) {
-            return maxSubPlateValues[subPlateLength][slicePosition] + maxSubPlateValues[subPlateLength][subPlateWidth - slicePosition];
-        }
-
-        int calculateHorizontalBisectionValue(int slicePosition) {
-            return maxSubPlateValues[slicePosition][subPlateWidth] + maxSubPlateValues[subPlateLength - slicePosition][subPlateWidth];
-        }
-
-        int calculateMaxBisectionValue() {
-            int maxValue = 0;
-            int currValue;
-            for (int verticalSlice = 1; verticalSlice < subPlateWidth; verticalSlice++) {
-                currValue = calculateVerticalBisectionValue(verticalSlice);
-                if (currValue > maxValue) {
-                    maxValue = currValue;
-                }
-            }
-
-            for (int horizontalSlice = 1; horizontalSlice < subPlateLength; horizontalSlice++) {
-                currValue = calculateHorizontalBisectionValue(horizontalSlice);
-                if (currValue > maxValue) {
-                    maxValue = currValue;
-                }
-            }
-
-            return maxValue;
-        }
-
-        int getPieceValueWithSubPlateDimensions() {
-            for (Piece piece : pieces) {
-                if (
-                    (piece.width == subPlateWidth && piece.length == subPlateLength) || 
-                    (piece.width == subPlateLength && piece.length == subPlateWidth) // peças podem girar
-                    ) {
-                    return piece.value;
-                }
-            }
-            return 0;
-        }
-
-        int calculateMaxSubPlateValue() {
-            return max(getPieceValueWithSubPlateDimensions(), calculateMaxBisectionValue());
         }
 
         int calculateValue() {
@@ -82,8 +100,6 @@ class PlateValueCalculator {
             }
             return maxSubPlateValues[plate.length][plate.width];
         }
-
-
 };
 
 

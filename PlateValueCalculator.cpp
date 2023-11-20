@@ -52,9 +52,7 @@ int PlateValueCalculator::calculateValue() {
     for (subPlateLength = 1; subPlateLength <= plate.length; subPlateLength++) {
         for (subPlateWidth = 1; subPlateWidth <= plate.width; subPlateWidth++) {
             maxSubPlateValues[subPlateLength][subPlateWidth] = calculateMaxSubPlateValue();
-            std::cout << maxSubPlateValues[subPlateLength][subPlateWidth];
         }
-        std::cout << std::endl;
     }
     return maxSubPlateValues[plate.length][plate.width];
 }

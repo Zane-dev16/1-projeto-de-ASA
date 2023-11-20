@@ -52,7 +52,6 @@ class PlateValueCalculator {
                 if (currValue > maxValue) {
                     maxValue = currValue;
                 }
-                /* cout << horizontalSlice << "," << subPlateWidth << ":" << maxSubPlateValues[horizontalSlice][subPlateWidth] << "+" << maxSubPlateValues[subPlateLength - horizontalSlice][subPlateWidth] << " "; */
             }
 
             return maxValue;

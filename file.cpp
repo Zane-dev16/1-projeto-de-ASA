@@ -39,7 +39,7 @@ class PlateValueCalculator {
         int maxValue = 0;
         int currValue;
 
-        for (int slicePosition = 1; slicePosition < sliceLimit; slicePosition++) {
+        for (int slicePosition = 1; slicePosition <= sliceLimit/2; slicePosition++) {
             currValue = (this->*calculateBisectionValue)(slicePosition);
 
             if (currValue > maxValue) {

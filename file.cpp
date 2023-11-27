@@ -60,18 +60,6 @@ class PlateValueCalculator {
         return maxValue;
     }
 
-    int getPieceValueWithSubPlateDimensions() {
-        for (Piece piece : pieces) {
-            if (
-                (piece.width == subPlateWidth && piece.length == subPlateLength) || 
-                (piece.width == subPlateLength && piece.length == subPlateWidth) // peças podem girar
-                ) {
-                return piece.value;
-            }
-        }
-        return 0;
-    }
-
     bool rotatedSubPlateHasBeenCalculated() {
         return subPlateLength <= plate.width
             && subPlateLength > subPlateWidth;
@@ -81,7 +69,18 @@ class PlateValueCalculator {
         if (rotatedSubPlateHasBeenCalculated()) {
             return maxSubPlateValues[subPlateWidth][subPlateLength];
         } else {
-            return max(getPieceValueWithSubPlateDimensions(), calculateMaxBisectionValue());
+            return max(maxSubPlateValues[subPlateLength][subPlateWidth], calculateMaxBisectionValue());
+        }
+    }
+
+    void placePieceValues() {
+        for (Piece piece: pieces) {
+            if (piece.length <= plate.length && piece.width <= plate.width) {
+                maxSubPlateValues[piece.length][piece.width] = piece.value;
+            }
+            if (piece.width <= plate.length && piece.length <= plate.width) {
+                maxSubPlateValues[piece.width][piece.length] = piece.value;
+            }
         }
     }
 
@@ -93,9 +92,17 @@ class PlateValueCalculator {
 
         int calculateValue() {
             maxSubPlateValues = vector<vector<int>>(plate.length + 1, vector<int>(plate.width + 1, 0));
+            placePieceValues();
             for (subPlateLength = 1; subPlateLength <= plate.length; subPlateLength++) {
-                for (subPlateWidth = 1; subPlateWidth <= plate.width; subPlateWidth++) {
+                int startWidth = 0;
+                if (subPlateLength <= plate.width) {
+                    startWidth = subPlateLength;
+                }
+                for (subPlateWidth = startWidth; subPlateWidth <= plate.width; subPlateWidth++) {
                     maxSubPlateValues[subPlateLength][subPlateWidth] = calculateMaxSubPlateValue();
+                    if (subPlateLength <= plate.width && subPlateWidth <= plate.length) {
+                        maxSubPlateValues[subPlateWidth][subPlateLength] = maxSubPlateValues[subPlateLength][subPlateWidth];
+                    }
                 }
             }
             return maxSubPlateValues[plate.length][plate.width];
@@ -120,7 +127,7 @@ Piece readPiece() {
 
 vector<Piece> readPieces(int numPieces) {
     vector<Piece> pieces;
-    for (size_t i = 0; i < numPieces; i++) {
+    for (int i = 0; i < numPieces; i++) {
         pieces.push_back(readPiece());
     }
 

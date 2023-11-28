@@ -22,6 +22,7 @@ class PlateValueCalculator {
     vector<vector<int>> maxSubPlateValues;
     int subPlateLength;
     int subPlateWidth;
+    int minPieceFittingSize = 1000000;
 
     int subPlateIsSquare() {
         return subPlateLength == subPlateWidth;
@@ -81,6 +82,8 @@ class PlateValueCalculator {
             if (piece.width <= plate.length && piece.length <= plate.width) {
                 maxSubPlateValues[piece.width][piece.length] = piece.value;
             }
+
+            minPieceFittingSize = min(minPieceFittingSize, max(piece.length, piece.width));
         }
     }
 
@@ -110,18 +113,15 @@ class PlateValueCalculator {
 };
 
 
-
 Plate readPlate() {
     Plate plate;
-    cin >> plate.length;
-    cin.ignore();
-    cin >> plate.width;
+    scanf("%d %d", &plate.length, &plate.width);
     return plate;
 }
 
 Piece readPiece() {
     Piece piece;
-    cin >> piece.length >> piece.width >> piece.value;
+    scanf("%d %d %d", &piece.length, &piece.width, &piece.value);
     return piece;
 }
 
@@ -137,8 +137,9 @@ vector<Piece> readPieces(int numPieces) {
 int main() {    
     int numPieces;
     Plate plate = readPlate();
-    cin >> numPieces;
+    scanf("%d", &numPieces);
     vector<Piece> pieces = readPieces(numPieces);
     PlateValueCalculator plateValueCalculator(plate, pieces);
-    cout << plateValueCalculator.calculateValue() << endl;
+    printf("%d\n", plateValueCalculator.calculateValue());
+    return 0;
 }
